@@ -28,14 +28,33 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const menuCollection = client.db("bistroDb").collection("menu");
-    const reviewsCollection = client.db("bistroDb").collection("reviews");
+    const reviewCollection = client.db("bistroDb").collection("reviews");
+    const cartCollection = client.db("bistroDb").collection("carts");
 
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
     app.get("/reviews", async (req, res) => {
-      const result = await reviewsCollection.find().toArray();
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
+
+    // cart collection
+    app.get("/carts", async (req, res) => {
+      const email = res.query.email;
+      console.log(email);
+      if (!email) {
+        res.send([]);
+      }
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+    });
+
+    app.post("/carts", async (req, res) => {
+      const item = req.body;
+      console.log(item);
+      const result = await cartCollection.insertOne(item);
       res.send(result);
     });
 
@@ -54,3 +73,16 @@ run().catch(console.dir);
 app.listen(port, () => {
   console.log(`Bistro boss is sitting on port ${port}`);
 });
+
+/**
+ * ---------------------------------
+ *      Naming Covention
+ * ---------------------------------
+ * users : userCollection
+ * app.get('/users')
+ * app.get('/users:id)  ------------- for particular user ---------
+ * app.post('/users')
+ * app.patch('/users:id)
+ * app.put('/users:id)
+ * app.delete('/users:id)
+ */
