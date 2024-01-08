@@ -13,8 +13,8 @@ app.get("/", (req, res) => {
 });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.grbvc.mongodb.net/?retryWrites=true&w=majority`;
+// console.log(uri)
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -79,10 +79,10 @@ app.listen(port, () => {
  *      Naming Covention
  * ---------------------------------
  * users : userCollection
- * app.get('/users')
- * app.get('/users:id)  ------------- for particular user ---------
- * app.post('/users')
- * app.patch('/users:id)
- * app.put('/users:id)
- * app.delete('/users:id)
+ * app.get('/users') ----- will get all users -----
+ * app.get('/users:id')  ------------- for getting a particular user ---------
+ * app.post('/users') ----- create a new user 
+ * app.patch('/users:id') ------ for updating a particular user ----
+ * app.put('/users:id')
+ * app.delete('/users:id')
  */
