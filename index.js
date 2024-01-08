@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
-
+// some thing
 app.get("/", (req, res) => {
   res.send("bosss is sitting");
 });
