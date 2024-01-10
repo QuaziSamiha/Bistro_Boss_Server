@@ -38,6 +38,17 @@ app.post("/jwt", async (req, res) => {
   res.send({ token });
 });
 
+// WARNING: USE verifyJWT before using verifyAdmin
+const verifyAdmin = async (req, res, next) => {
+  const email = req.decoded.email;
+  const query = { email: email };
+  const user = await userCollection.findOne(query);
+  if (user?.role !== "admin") {
+    return res.status(403).send({ error: true, message: "forbidden message" });
+  }
+  next();
+};
+
 // some thing
 app.get("/", (req, res) => {
   res.send("bosss is sitting");
@@ -64,7 +75,16 @@ async function run() {
     const cartCollection = client.db("bistroDb").collection("carts");
 
     // --------------------------USER RELATED DATA-----------------------------------------
-    app.get("/users", async (req, res) => {
+    // app.get("/users", async (req, res) => {
+    //   const result = await userCollection.find().toArray();
+    //   res.send(result);
+    // });
+    /**
+     * 0. do not show the secure links to those who should not see the links
+     * 1. use jwt token : verifyJWT
+     * 2. use verify admin middleware
+     */
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
@@ -79,6 +99,21 @@ async function run() {
         return res.send({ message: "user already exists" });
       }
       const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/users/admin/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      // security layer: verifyJWT
+      // email same
+      // check admin
+      if (req.decoded.email !== email) {
+        res.send({ admin: false });
+      }
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      const result = { admin: user?.role === "admin" };
       res.send(result);
     });
 
@@ -97,6 +132,12 @@ async function run() {
     // --------------------------------MENU RELATED DATA-------------------------------------
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/menu", async (req, res) => {
+      const newItem = req.body;
+      const result = await menuCollection.insertOne(newItem);
       res.send(result);
     });
 
